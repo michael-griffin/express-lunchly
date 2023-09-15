@@ -21,7 +21,7 @@ class Reservation {
     return this._notes;
   }
 
-  set notes(val){
+  set notes(val) {
     if (!val) {
       val = "";
     }
@@ -33,10 +33,22 @@ class Reservation {
   }
 
   set numGuests(num) {
-    if (num < 1){
+    if (num < 1) {
       throw new Error("number of guests must be >= 1");
     }
     this._numGuests = num;
+  }
+
+  get startAt() {
+    return new Date(this._startAt);
+  }
+
+  set startAt(date) {
+    const startAtDate = new Date(date);
+    if (isNaN(startAtDate.getTime())) {
+      throw new Error("Please format time correctly: yyyy-mm-dd hh:mm am/pm");
+    }
+    this._startAt = startAtDate;
   }
 
   // get customerId() {
@@ -47,7 +59,7 @@ class Reservation {
   // //different form that included customer id explicitly?
   // set customerId(id) {
   //   if (this.customerId) {
-  //     throw new Error("can't reassign customer ids for reservations")
+  //     throw new Error("can't reassign customer ids for reservations");
   //   } else {
   //     this._customerId = id;
   //   }
@@ -73,7 +85,7 @@ class Reservation {
       [id]);
     const reservation = results.rows[0];
 
-    if (reservation === undefined){
+    if (reservation === undefined) {
       throw new Error(`No such reservation for  ${id}`);
     }
     return new Reservation(reservation);
@@ -89,7 +101,8 @@ class Reservation {
                   start_at AS "startAt",
                   notes AS "notes"
            FROM reservations
-           WHERE customer_id = $1`,
+           WHERE customer_id = $1
+           ORDER BY start_at DESC`,
       [customerId],
     );
 
@@ -109,7 +122,7 @@ class Reservation {
           this.startAt,
           this.numGuests,
           this.notes
-      ],
+        ],
       );
       this.id = result.rows[0].id;
     } else {

@@ -100,12 +100,12 @@ router.get("/reservations/:id/edit", async function (req, res) {
 /** Handle editing a reservation */
 
 router.post("/reservations/:id/edit", async function (req, res) {
-  if (req.body === undefined){
+  if (req.body === undefined) {
     throw new BadRequestError();
   }
   const reservation = await Reservation.get(req.params.id);
   reservation.numGuests = req.body.numGuests;
-  reservation.startAt = req.body.startAt;
+  reservation.startAt = new Date(req.body.startAt);
   reservation.notes = req.body.notes;
 
   console.log('completed get and update, yet to save');
@@ -114,7 +114,7 @@ router.post("/reservations/:id/edit", async function (req, res) {
   console.log('completed save for reservation');
 
   return res.redirect(`/${reservation.customerId}/`);
-})
+});
 
 /** Handle adding a new reservation. */
 

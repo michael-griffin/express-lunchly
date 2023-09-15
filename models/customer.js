@@ -96,6 +96,31 @@ class Customer {
     return await Reservation.getReservationsForCustomer(this.id);
   }
 
+  /** Finds most recent reservation for this customer */
+
+  async getMostRecentReservation() {
+    const result = await db.query(
+      `SELECT id,
+      customer_id AS "customerId",
+      num_guests AS "numGuests",
+      start_at AS "startAt",
+      notes AS "notes"
+        FROM reservations
+        WHERE customer_id = $1
+        ORDER BY start_at DESC LIMIT 1`,
+      [this.customerId],
+    );
+    const reservation = result.rows[0];
+
+    if (reservation === undefined) {
+      const err = new Error(`No such reservation: ${reservation.id}`);
+      err.status = 404;
+      throw err;
+    }
+
+    return new Reservation(reservation);
+  }
+
   /** save this customer. */
 
   async save() {
@@ -124,6 +149,7 @@ class Customer {
       );
     }
   }
+
 
 
   /** fullName: Returns combined first and last name as full name string  */
