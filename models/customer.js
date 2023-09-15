@@ -56,6 +56,7 @@ class Customer {
     return new Customer(customer);
   }
 
+  /** Search for any customers whose first/last name includes searchTerm */
   static async search(searchTerm) {
     const formattedSearchTerm = `%${searchTerm}%`;
     const results = await db.query(
@@ -68,6 +69,35 @@ class Customer {
         WHERE first_name ILIKE $1 OR last_name ILIKE $1`,
       [formattedSearchTerm],
     );
+
+    return results.rows.map(c => new Customer(c));
+  }
+
+
+  /** Get list of 10 best customers, by # of reservations */
+  static async topTen(){
+    console.log('got to topTen method');
+    // const results = await db.query(`
+    // SELECT customer_id, COUNT(*) FROM reservations
+    // GROUP BY customer_id ORDER BY COUNT(*) DESC LIMIT 10;
+    // `)
+
+    // return results.rows.map(async function (reservation) {
+    //   const customer = await Customer.get(reservation.customer_id);
+    //   return customer;
+    // });
+
+    // //Join version
+    const results = await db.query(
+      `SELECT first_name AS "firstName", last_name AS "lastName",
+       phone, customers.notes AS "notes", customer_id AS "id", COUNT(*)
+      FROM reservations
+      JOIN customers ON customer_id = customers.id
+      GROUP BY customer_id, first_name, last_name, phone, customers.notes
+      ORDER BY COUNT(*) DESC LIMIT 10;`
+    );
+    console.log('finished query in topTen');
+    console.log('results.rows is ', results.rows);
 
     return results.rows.map(c => new Customer(c));
   }
