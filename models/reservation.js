@@ -27,46 +27,49 @@ class Reservation {
 
   static async getReservationsForCustomer(customerId) {
     const results = await db.query(
-          `SELECT id,
+      `SELECT id,
                   customer_id AS "customerId",
                   num_guests AS "numGuests",
                   start_at AS "startAt",
                   notes AS "notes"
            FROM reservations
            WHERE customer_id = $1`,
-        [customerId],
+      [customerId],
     );
 
     return results.rows.map(row => new Reservation(row));
   }
 
+  /** save: creates new reservation or updates existing reservation */
 
   async save() {
     if (this.id === undefined) {
       const result = await db.query(
-            `INSERT INTO reservations (customer_id, start_at, num_guests, notes)
+        `INSERT INTO reservations (customer_id, start_at, num_guests, notes)
              VALUES ($1, $2, $3, $4)
              RETURNING id`,
-          [ this.customerId,
-            this.startAt,
-            this.numGuests,
-            this.notes],
+        [this.customerId,
+        this.startAt,
+        this.numGuests,
+        this.notes],
       );
+      //TODO: be consistent with brackets above
+      //TODO: think about updating customer_id vs. deleting/creating res
       this.id = result.rows[0].id;
     } else {
       await db.query(
-            `UPDATE reservations
+        `UPDATE reservations
              SET customer_id=$1,
                  start_at=$2,
                  num_guests=$3,
                  notes=$4
              WHERE id = $5`, [
-            this.customerId,
-            this.startAt,
-            this.numGuests,
-            this.notes,
-            this.id,
-          ],
+        this.customerId,
+        this.startAt,
+        this.numGuests,
+        this.notes,
+        this.id,
+      ],
       );
     }
   }

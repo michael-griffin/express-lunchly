@@ -17,17 +17,19 @@ router.get("/", async function (req, res, next) {
   return res.render("customer_list.html", { customers });
 });
 
-/** Show top 10 customers by reservations */
+/** Show top 10 customers by number of reservations */
 
 router.get("/top-ten/", async function (req, res) {
   const customers = await Customer.topTen();
-  console.log('completed query, customers: ', customers);
   return res.render("customer_list.html", { customers });
-})
+});
 
-/** Handle search form input, show customers based on search */
+/** Handle search form input, show customers whose name includes the
+ * search term
+ * */
+//TODO: consider combining with home route with conditional logic to determine
+// what to render
 router.get("/search", async function (req, res, next) {
-  console.log(req.query.search);
   const searchTerm = req.query.search;
   const customers = await Customer.search(searchTerm);
   return res.render("customer_list.html", { customers });
