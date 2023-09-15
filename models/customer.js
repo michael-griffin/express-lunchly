@@ -128,7 +128,11 @@ class Customer {
 
   /** fullName: Returns combined first and last name as full name string  */
 
-  fullName() {
+  // fullName() {
+  //   return `${this.firstName} ${this.lastName}`;
+  // }
+
+  get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
 }
